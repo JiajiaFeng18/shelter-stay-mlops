@@ -1,0 +1,16 @@
+# data and local environment
+/data/
+/mlruns/
+.venv/
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# local reports
+*_report.txt
+peek_output.txt

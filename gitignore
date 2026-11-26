@@ -1,6 +1,0 @@
-data/
-mlruns/
-.venv/
-__pycache__/
-*.pyc
-.env
