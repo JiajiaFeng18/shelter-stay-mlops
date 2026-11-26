@@ -1,0 +1,6 @@
+requests>=2.31
+pandas>=2.1
+pyarrow>=14.0
+pandera>=0.20
+prefect>=2.19
+pytest>=8.0
