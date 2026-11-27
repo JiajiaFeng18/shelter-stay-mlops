@@ -23,6 +23,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from src.data.schemas import INTAKES_CLEAN, OUTCOMES_CLEAN, validate
+
 RAW_DIR = Path("data/raw")
 OUT_DIR = Path("data/interim")
 
@@ -198,6 +200,8 @@ def main() -> None:
                ["animal_id", "outcome_time", "outcome_type"]),
     ], ignore_index=True)[OUTCOME_COLS]
 
+    intakes = validate(intakes, INTAKES_CLEAN)
+    outcomes = validate(outcomes, OUTCOMES_CLEAN)
     intakes.to_parquet(OUT_DIR / "intakes_clean.parquet", index=False)
     outcomes.to_parquet(OUT_DIR / "outcomes_clean.parquet", index=False)
     print(f"\nSaved {OUT_DIR}/intakes_clean.parquet ({len(intakes):,}) "

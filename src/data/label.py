@@ -25,6 +25,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from src.data.schemas import STAYS_LABELED, validate
+
 INTERIM_DIR = Path("data/interim")
 OUT_DIR = Path("data/processed")
 
@@ -153,6 +155,7 @@ def main() -> None:
     outcomes = pd.read_parquet(INTERIM_DIR / "outcomes_clean.parquet")
     stays = build_stays(intakes, outcomes, as_of=args.as_of)
 
+    stays = validate(stays, STAYS_LABELED)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     stays.to_parquet(OUT_DIR / "stays_labeled.parquet", index=False)
     # Small sample for teammates to start coding against before the full pipeline is ready.
