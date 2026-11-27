@@ -105,17 +105,23 @@ def download(session: requests.Session, names: list[str]) -> None:
     manifest_path.write_text(json.dumps(manifest, indent=2))
 
 
+def run(names: list[str] | None = None) -> dict:
+    """Download the named datasets (all four by default); return the manifest entries."""
+    download(make_session(), names or list(DATASETS))
+    manifest = json.loads((RAW_DIR / "manifest.json").read_text())
+    return {name: manifest[name] for name in (names or list(DATASETS))}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--peek", action="store_true", help="print columns and 3 rows of each dataset")
     parser.add_argument("--only", nargs="+", choices=DATASETS, help="download only these datasets")
     args = parser.parse_args()
 
-    session = make_session()
     if args.peek:
-        peek(session)
+        peek(make_session())
     else:
-        download(session, args.only or list(DATASETS))
+        run(args.only)
 
 
 if __name__ == "__main__":

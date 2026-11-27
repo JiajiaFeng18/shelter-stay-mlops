@@ -181,7 +181,8 @@ def profile(name: str, df: pd.DataFrame, cat_cols: list[str], time_col: str) -> 
         print(df["age_days"].describe().round(1).to_string())
 
 
-def main() -> None:
+def run(show_profile: bool = True) -> dict:
+    """Clean the raw tables, validate and save them; return row counts."""
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     raw = {name: pd.read_parquet(RAW_DIR / f"{name}.parquet") for name in
            ["legacy_intakes", "new_intakes", "legacy_outcomes", "new_outcomes"]}
@@ -207,6 +208,13 @@ def main() -> None:
     print(f"\nSaved {OUT_DIR}/intakes_clean.parquet ({len(intakes):,}) "
           f"and {OUT_DIR}/outcomes_clean.parquet ({len(outcomes):,})")
 
+    if show_profile:
+        print_profiles(intakes, outcomes)
+    return {"intakes": len(intakes), "outcomes": len(outcomes)}
+
+
+def print_profiles(intakes: pd.DataFrame, outcomes: pd.DataFrame) -> None:
+    """Print value distributions per source (used for the schema-mapping table)."""
     for source in ["legacy", "new"]:
         profile(f"{source} intakes", intakes[intakes["source"] == source],
                 ["intake_type", "intake_condition", "sex", "neutered", "breed", "color"], "intake_time")
@@ -217,6 +225,10 @@ def main() -> None:
     print(new_out["sys_days_in_shelter"].describe().round(1).to_string())
     print("new outcomes with sys_intake_time before 2025-05-05:",
           int((new_out["sys_intake_time"] < "2025-05-05").sum()))
+
+
+def main() -> None:
+    run()
 
 
 if __name__ == "__main__":

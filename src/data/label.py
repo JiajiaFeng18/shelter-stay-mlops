@@ -150,10 +150,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--as-of", help="evaluate labels as known on this date (YYYY-MM-DD)")
     args = parser.parse_args()
+    run(args.as_of)
 
+
+def run(as_of=None, show_report: bool = True) -> dict:
+    """Match, label, validate and save the stays table; return status counts."""
     intakes = pd.read_parquet(INTERIM_DIR / "intakes_clean.parquet")
     outcomes = pd.read_parquet(INTERIM_DIR / "outcomes_clean.parquet")
-    stays = build_stays(intakes, outcomes, as_of=args.as_of)
+    stays = build_stays(intakes, outcomes, as_of=as_of)
 
     stays = validate(stays, STAYS_LABELED)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -163,7 +167,9 @@ def main() -> None:
     sample.to_parquet(OUT_DIR / "sample_stays.parquet", index=False)
     print(f"\nSaved {OUT_DIR}/stays_labeled.parquet ({len(stays):,} rows) "
           f"and {OUT_DIR}/sample_stays.parquet ({len(sample)} rows)")
-    report(stays)
+    if show_report:
+        report(stays)
+    return {"rows": len(stays), **stays["label_status"].value_counts().to_dict()}
 
 
 if __name__ == "__main__":
